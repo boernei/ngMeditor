@@ -148,7 +148,7 @@ angular.module('ngMeditor')
             }
         };
     })
-    .directive("ngMeditor", function($compile, $window, $timeout, $upload, meditorProvider) {
+    .directive("ngMeditor", function($compile, $window, $timeout, Upload, meditorProvider) {
         return {
             restrict: "AE",
             scope: {
@@ -370,7 +370,7 @@ angular.module('ngMeditor')
                             return;
                         }
                         scope.editable = false;
-                        $upload.upload({
+                        Upload.upload({
                             url: config.qnConfig.endPoint,
                             method: 'POST',
                             data: {

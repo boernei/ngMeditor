@@ -148,11 +148,12 @@ angular.module('ngMeditor')
             }
         };
     })
-    .directive("ngMeditor", function($compile, $window, $timeout, Upload, meditorProvider) {
+    .directive("ngMeditor", function($compile, $window, $timeout, Upload, meditorProvider, $rootScope) {
         return {
             restrict: "AE",
             scope: {
-                ngModel: "="
+                ngModel: "=",
+                isDirty: "="
             },
             require: "^ngModel",
             link: function(scope, el, attr) {
@@ -195,6 +196,10 @@ angular.module('ngMeditor')
                 if (scope.ngModel) {
                     html[0].innerHTML = scope.ngModel;
                 }
+                
+                $rootScope.$on('ngMeditorModelChanged', function(event, value){
+                    html[0].innerHTML = value;
+                });
 
                 function getRange() {
                     selection = document.getSelection();
@@ -208,6 +213,7 @@ angular.module('ngMeditor')
                     }
 
                     scope.ngModel = html[0].innerHTML;
+                    scope.isDirty = true;
                 }
 
                 function fixReturn() {

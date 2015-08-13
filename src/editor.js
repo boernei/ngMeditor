@@ -260,6 +260,11 @@ angular.module('ngMeditor')
 
                 function findParentTag(tagName) {
                     tagName = tagName.toLowerCase();
+                    
+                    if(selection === null || typeof selection === 'undefined'){
+                        return null;
+                    }
+                    
                     var p = selection.anchorNode.parentNode;
                     while (p && p.id !== scope.editId && p.tagName) {
                         if (p.tagName.toLowerCase() === tagName) {
@@ -404,27 +409,27 @@ angular.module('ngMeditor')
 
                 scope.pasteImage = pasteImage;
 
-                $window.addEventListener("paste", function(e) {
-                    var index = e.clipboardData.types.indexOf('Files');
-                    if (index >= 0) {
-                        if (config.qnConfig) {
-                            angular.forEach(e.clipboardData.items, function(item) {
-                                if (/image/.test(item.type)) {
-                                    pasteImage(item.getAsFile());
-                                }
-                            });
-                        }
-                    } else {
-                        var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-                        if (text) {
-                            scope.doCommand(null, {
-                                name: 'insertText',
-                                param: text
-                            });
-                        }
-                        e.preventDefault();
-                    }
-                });
+                // $window.addEventListener("paste", function(e) {
+                //     var index = e.clipboardData.types.indexOf('Files');
+                //     if (index >= 0) {
+                //         if (config.qnConfig) {
+                //             angular.forEach(e.clipboardData.items, function(item) {
+                //                 if (/image/.test(item.type)) {
+                //                     pasteImage(item.getAsFile());
+                //                 }
+                //             });
+                //         }
+                //     } else {
+                //         var text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                //         if (text) {
+                //             scope.doCommand(null, {
+                //                 name: 'insertText',
+                //                 param: text
+                //             });
+                //         }
+                //         e.preventDefault();
+                //     }
+                // });
 
                 scope.doCommand = function(e, cmd) {
                     if (!cmd.name && cmd.name === 'imgFile') {

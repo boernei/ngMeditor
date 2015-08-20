@@ -211,8 +211,13 @@ angular.module('ngMeditor')
                     if (!html[0].innerHTML) {
                         return;
                     }
-
-                    scope.ngModel = html[0].innerHTML;
+                    var textHtml = html[0].innerHTML;
+                    var htmlWithoutSpan = textHtml.replace(/(<span([^>]+)>)/ig, '').replace(/<\/span>/ig, '')
+                                                  .replace(/(<div([^>]+)>)/ig, '').replace(/<\/div>/ig, '');
+                    if(htmlWithoutSpan !== html[0].innerHTML){
+                        html[0].innerHTML = htmlWithoutSpan;
+                    }
+                    scope.ngModel = htmlWithoutSpan;
                     scope.isDirty = true;
                 }
 

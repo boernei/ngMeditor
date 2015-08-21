@@ -211,15 +211,58 @@ angular.module('ngMeditor')
                     if (!html[0].innerHTML) {
                         return;
                     }
-                    var textHtml = html[0].innerHTML;
-                    var htmlWithoutSpan = textHtml.replace(/(<span([^>]+)>)/ig, '').replace(/<\/span>/ig, '')
-                                                  .replace(/(<div([^>]+)>)/ig, '').replace(/<\/div>/ig, '');
-                    if(htmlWithoutSpan !== html[0].innerHTML){
-                        html[0].innerHTML = htmlWithoutSpan;
+                    var children = $(html[0]).children();
+
+                    if(children.length == 1 && children[0].innerHTML === "" && children[0].tagName !== ""){
+                        html[0].innerHTML = "<p></p>";
+                        scope.isDirty = false;
+                        angular.forEach(scope.commands, function(cmd) {
+                            cmd.actived = false;
+                        });
                     }
-                    scope.ngModel = htmlWithoutSpan;
+
+                    scope.ngModel = html[0].innerHTML;
                     scope.isDirty = true;
+
+                    // var textHtml = html[0].innerHTML;
+                    // if(textHtml !== null){
+                    //     var htmlWithoutSpan = textHtml.replace(/(<span([^>]*)>)/ig, '').replace(/<\/span>/ig, '')
+                    //                               .replace(/(<p([^>]*)>)/ig, '').replace(/<\/p>/ig, '');
+
+                    //     if(htmlWithoutSpan !== html[0].innerHTML){
+                    //         html[0].innerHTML = htmlWithoutSpan;
+                    //         fixReturn();
+                    //         placeCaretAtEnd(html[0]);
+                    //     }
+                    //     scope.ngModel = htmlWithoutSpan;
+                    //     scope.isDirty = true;
+                    // }
                 }
+                
+                function placeCaretAtEnd(el) {
+                   el.focus();
+                   if (window.getSelection){
+                       if (typeof window.getSelection != "undefined"
+                               && typeof document.createRange != "undefined") {
+                           var range = document.createRange();
+                           var brs = $(el).find('br');
+                           if(brs.length > 1){
+                                range.selectNodeContents(el);
+                                range.collapse(false);
+                                range.setEndBefore(brs[brs.length - 2]); //only for FF, fiddle does not have browser check
+                                var sel = window.getSelection();
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                           }
+                           
+                       } else if (typeof document.body.createTextRange != "undefined") {
+                           var textRange = document.body.createTextRange();
+                           textRange.moveToElementText(el);
+                           textRange.collapse(false);
+                           textRange.select();
+                       }
+                   }
+               }
 
                 function fixReturn() {
                     if (/<br><br>$/.test(html[0].innerHTML)) {
@@ -414,27 +457,35 @@ angular.module('ngMeditor')
 
                 scope.pasteImage = pasteImage;
 
-                // $window.addEventListener("paste", function(e) {
-                //     var index = e.clipboardData.types.indexOf('Files');
-                //     if (index >= 0) {
-                //         if (config.qnConfig) {
-                //             angular.forEach(e.clipboardData.items, function(item) {
-                //                 if (/image/.test(item.type)) {
-                //                     pasteImage(item.getAsFile());
-                //                 }
-                //             });
-                //         }
-                //     } else {
-                //         var text = (e.originalEvent || e).clipboardData.getData('text/plain');
-                //         if (text) {
-                //             scope.doCommand(null, {
-                //                 name: 'insertText',
-                //                 param: text
-                //             });
-                //         }
-                //         e.preventDefault();
-                //     }
-                // });
+                $window.addEventListener("paste", function(e) {
+                    if ($(document.activeElement).is(html)) {
+                        // var index = e.clipboardData.types.indexOf('Files');
+                        // if (index >= 0) {
+                        //     if (config.qnConfig) {
+                        //         angular.forEach(e.clipboardData.items, function(item) {
+                        //             if (/image/.test(item.type)) {
+                        //                 pasteImage(item.getAsFile());
+                        //             }
+                        //         });
+                        //     }
+                        // } else {
+                        var text = (e.originalEvent || e).clipboardData.getData('text/html');
+                        if (text) {
+                            // text = text.replace(/(<span([^>]*)>)/ig, '').replace(/<\/span>/ig, '')
+                            //                     .replace(/(<p([^>]*)>)/ig, '').replace(/<\/p>/ig, '')
+                            //                     .replace(/(<div([^>]*)>)/ig, '').replace(/<\/div>/ig, '')
+                            //                     .replace(/(\r\n|\n|\r)/gm, '<br>');
+                            // console.log(text);
+                            scope.doCommand(null, {
+                                name: 'insertText',
+                                param: text
+                            });
+                            e.preventDefault();
+                        }
+                            
+                        //}
+                    }
+                });
 
                 scope.doCommand = function(e, cmd) {
                     if (!cmd.name && cmd.name === 'imgFile') {
@@ -452,8 +503,9 @@ angular.module('ngMeditor')
                             selection.addRange(range);
                         } catch (exp) { /* IE throws error sometimes*/ }
                     }
+                    console.log("Execute command " + cmd.name);
                     document.execCommand(cmd.name, false, cmd.param || '');
-                    setNgModel();
+                    setNgModel(true);
                     hlmenu();
                 };
                 document.execCommand('styleWithCSS', false, false);

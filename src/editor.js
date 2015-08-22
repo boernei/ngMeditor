@@ -214,29 +214,13 @@ angular.module('ngMeditor')
                     var children = $(html[0]).children();
 
                     if(children.length == 1 && children[0].innerHTML === "" && children[0].tagName !== ""){
-                        html[0].innerHTML = "<p></p>";
-                        scope.isDirty = false;
                         angular.forEach(scope.commands, function(cmd) {
                             cmd.actived = false;
                         });
                     }
-
+                    
                     scope.ngModel = html[0].innerHTML;
                     scope.isDirty = true;
-
-                    // var textHtml = html[0].innerHTML;
-                    // if(textHtml !== null){
-                    //     var htmlWithoutSpan = textHtml.replace(/(<span([^>]*)>)/ig, '').replace(/<\/span>/ig, '')
-                    //                               .replace(/(<p([^>]*)>)/ig, '').replace(/<\/p>/ig, '');
-
-                    //     if(htmlWithoutSpan !== html[0].innerHTML){
-                    //         html[0].innerHTML = htmlWithoutSpan;
-                    //         fixReturn();
-                    //         placeCaretAtEnd(html[0]);
-                    //     }
-                    //     scope.ngModel = htmlWithoutSpan;
-                    //     scope.isDirty = true;
-                    // }
                 }
                 
                 function placeCaretAtEnd(el) {
@@ -469,13 +453,8 @@ angular.module('ngMeditor')
                         //         });
                         //     }
                         // } else {
-                        var text = (e.originalEvent || e).clipboardData.getData('text/html');
+                        var text = (e.originalEvent || e).clipboardData.getData('text/plain');
                         if (text) {
-                            // text = text.replace(/(<span([^>]*)>)/ig, '').replace(/<\/span>/ig, '')
-                            //                     .replace(/(<p([^>]*)>)/ig, '').replace(/<\/p>/ig, '')
-                            //                     .replace(/(<div([^>]*)>)/ig, '').replace(/<\/div>/ig, '')
-                            //                     .replace(/(\r\n|\n|\r)/gm, '<br>');
-                            // console.log(text);
                             scope.doCommand(null, {
                                 name: 'insertText',
                                 param: text
@@ -503,7 +482,6 @@ angular.module('ngMeditor')
                             selection.addRange(range);
                         } catch (exp) { /* IE throws error sometimes*/ }
                     }
-                    console.log("Execute command " + cmd.name);
                     document.execCommand(cmd.name, false, cmd.param || '');
                     setNgModel(true);
                     hlmenu();

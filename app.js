@@ -1,4 +1,4 @@
-angular.module("ieditor", ['ngSanitize', 'angularFileUpload','ngMeditor']);
+angular.module("ieditor", ['ngSanitize', 'ngFileUpload','ngMeditor']);
 
 angular.module("ieditor").run(function ($http, meditorProvider) {
     meditorProvider.config({
